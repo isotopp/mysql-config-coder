@@ -43,4 +43,4 @@ my_print_defaults -s local
 
 ## Blog Article
 
-[Provisioning .mylogin.cnf](https://blog.koehntopp.info/2020/09/22/mylogin-cnf.html)
+[Provisioning .mylogin.cnf](https://blog.koehntopp.info/2020/09/23/mylogin-cnf.html)
