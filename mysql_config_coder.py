@@ -4,6 +4,7 @@ import click
 import struct
 from os import urandom
 
+# pycrypto
 from Crypto.Cipher import AES
 
 _VERSION_LENGTH = 4
@@ -81,14 +82,14 @@ def encode(infile, outfile):
     key = urandom(_LOGIN_KEY_LENGTH)
     real_key = realkey(key)
 
-    outfile.write(struct.pack("I", 0))
+    outfile.write(struct.pack("i", 0))
     outfile.write(key)
 
     while line := infile.readline():
         real_len = len(line)
         pad_len = (int(real_len / 16) + 1) * 16
 
-        outfile.write(struct.pack("I", pad_len))
+        outfile.write(struct.pack("i", pad_len))
         x = encode_line(line, real_key, pad_len)
         outfile.write(x)
 
