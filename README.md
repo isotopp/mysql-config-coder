@@ -35,4 +35,6 @@ chmod 600 mylogin.cnf
 # test with original
 MYSQL_TEST_LOGIN_FILE=$(pwd)/mylogin.cnf
 mysql_config_editor -v print --all
+
+# Note: mysql_config_editor will not print the password, just five stars
 ```
