@@ -30,6 +30,7 @@ cat mylogin.out
 
 # make changes to mylogin.out and
 ./mysql_config_coder.py encode mylogin.out mylogin.cnf
+chmod 600 mylogin.cnf
 
 # test with original
 MYSQL_TEST_LOGIN_FILE=$(pwd)/mylogin.cnf
