@@ -23,8 +23,8 @@ def realkey(key):
 
 def encode_line(plaintext, real_key, buf_len):
     text_len = len(plaintext)
-    pad_len  = buf_len - text_len
-    pad_chr  = bytes(chr(pad_len), "utf8")
+    pad_len = buf_len - text_len
+    pad_chr = bytes(chr(pad_len), "utf8")
 
     plaintext = bytes(plaintext) + pad_chr * pad_len
 
@@ -43,7 +43,7 @@ def decode_line(ciphertext, real_key):
 
     if pad_len > len(plaintext):
         return None
-   
+
     return plaintext[:-pad_len]
 
 
@@ -63,7 +63,7 @@ def decode(infile, outfile):
     real_key = realkey(key)
 
     while rlen := infile.read(_CIPHERTEXT_LENGTH):
-        len, = struct.unpack("I", rlen)
+        (len,) = struct.unpack("I", rlen)
         ciphertext = infile.read(len)
         line = decode_line(ciphertext, real_key)
         outfile.write(line)
