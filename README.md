@@ -36,9 +36,9 @@ chmod 600 mylogin.cnf
 MYSQL_TEST_LOGIN_FILE=$(pwd)/mylogin.cnf
 mysql_config_editor -v print --all
 
+# Note: mysql_config_editor will not print the password, just five stars
+```
+
 ## Blog Article
 
 [Provisioning .mylogin.cnf](https://blog.koehntopp.info/2020/09/22/mylogin-cnf.html)
-
-# Note: mysql_config_editor will not print the password, just five stars
-```
