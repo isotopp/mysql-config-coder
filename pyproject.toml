@@ -3,6 +3,7 @@ name = "mysql-config-coder"
 version = "1.0.0"
 description = "Encode and decode MySQL .mylogin.cnf files"
 readme = "README.md"
+license = "GPL-3.0-only"
 requires-python = ">=3.14"
 dependencies = ["pycryptodome>=3.23.0"]
 
