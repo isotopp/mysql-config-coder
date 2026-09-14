@@ -1,6 +1,7 @@
 import argparse
 import os
 import struct
+import tempfile
 from pathlib import Path
 
 from Crypto.Cipher import AES
@@ -78,6 +79,17 @@ def decode(data: bytes) -> bytes:
     return bytes(output)
 
 
+def _write(path: Path, data: bytes) -> None:
+    descriptor, name = tempfile.mkstemp(dir=path.parent)
+    os.close(descriptor)
+    temporary = Path(name)
+    try:
+        temporary.write_bytes(data)
+        temporary.replace(path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Encode and decode .mylogin.cnf files."
@@ -110,9 +122,7 @@ def main(argv: list[str] | None = None) -> int:
     transform = decode if args.command == "decode" else encode
     try:
         result = transform(infile.read_bytes())
-        args.outfile.touch(mode=0o600)
-        args.outfile.chmod(0o600)
-        args.outfile.write_bytes(result)
+        _write(args.outfile, result)
     except (OSError, ValueError) as error:
         parser.error(str(error))
     return 0

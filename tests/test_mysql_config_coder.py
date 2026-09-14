@@ -1,5 +1,6 @@
 import os
 import stat
+from pathlib import Path
 
 import pytest
 
@@ -45,3 +46,21 @@ def test_encode_creates_private_output(tmp_path) -> None:
         os.umask(old_umask)
 
     assert stat.S_IMODE(encoded.stat().st_mode) == 0o600
+
+
+def test_write_failure_preserves_existing_output(tmp_path, monkeypatch) -> None:
+    plaintext = tmp_path / "plain.cnf"
+    encoded = tmp_path / ".mylogin.cnf"
+    plaintext.write_bytes(b"[client]\npassword=secret\n")
+    encoded.write_bytes(b"existing data")
+    write_bytes = Path.write_bytes
+
+    def fail_after_partial_write(path: Path, data: bytes) -> int:
+        write_bytes(path, data[:1])
+        raise OSError("simulated write failure")
+
+    monkeypatch.setattr(Path, "write_bytes", fail_after_partial_write)
+    with pytest.raises(SystemExit):
+        main(["encode", str(plaintext), str(encoded)])
+
+    assert encoded.read_bytes() == b"existing data"
