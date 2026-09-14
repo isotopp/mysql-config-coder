@@ -9,12 +9,8 @@ without terminal interaction, it can easily be scripted.
 
 ## Installation
 
-```
-python -mvenv venv
-source venv/bin/activate
-pip install --upgrade pip
-pip install wheel
-pip install -r requirements.txt
+```sh
+uv tool install .
 ```
 
 ## Usage
@@ -25,11 +21,11 @@ mysql_config_editor set --login-path=local --user=root --host=localhost --passwo
 Password: keks
 
 # decode this file
-./mysql_config_coder.py decode ~/.mylogin.cnf mylogin.out
+mysql_config_coder decode ~/.mylogin.cnf mylogin.out
 cat mylogin.out
 
 # make changes to mylogin.out and
-./mysql_config_coder.py encode mylogin.out mylogin.cnf
+mysql_config_coder encode mylogin.out mylogin.cnf
 chmod 600 mylogin.cnf
 
 # test with original
@@ -39,6 +35,16 @@ my_print_defaults -s local
 
 # Note: mysql_config_editor will not print the password, just five stars
 #       but my_print_defaults should also show the password.
+```
+
+For development, run the command and checks in the project environment:
+
+```sh
+uv run mysql_config_coder --help
+uv run ruff check --fix
+uv run ruff format
+uv run pytest
+uv run ty check
 ```
 
 ## Blog Article
