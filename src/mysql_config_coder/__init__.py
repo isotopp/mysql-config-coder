@@ -9,6 +9,7 @@ from Crypto.Random import get_random_bytes
 
 _VERSION_LENGTH = 4
 _LOGIN_KEY_LENGTH = 20
+_MAX_CIPHERTEXT_LENGTH = 4096
 _LENGTH = struct.Struct("<I")
 
 
@@ -49,6 +50,8 @@ def encode(data: bytes, key: bytes | None = None) -> bytes:
     output = bytearray(_LENGTH.pack(0) + key)
     for line in data.splitlines(keepends=True):
         ciphertext = encode_line(line, real_key)
+        if len(ciphertext) > _MAX_CIPHERTEXT_LENGTH:
+            raise ValueError("plaintext line exceeds MySQL limit")
         output.extend(_LENGTH.pack(len(ciphertext)))
         output.extend(ciphertext)
     return bytes(output)

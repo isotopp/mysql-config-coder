@@ -23,6 +23,11 @@ def test_decode_rejects_truncated_data() -> None:
         decode(encoded[:-1])
 
 
+def test_encode_rejects_lines_exceeding_mysql_limit() -> None:
+    with pytest.raises(ValueError, match="line exceeds MySQL limit"):
+        encode(b"x" * 4096, key=bytes(20))
+
+
 def test_cli_uses_mysql_test_login_file(tmp_path, monkeypatch) -> None:
     plaintext = tmp_path / "plain.cnf"
     encoded = tmp_path / ".mylogin.cnf"
