@@ -16,6 +16,11 @@ def test_round_trip() -> None:
     assert decode(encoded) == plaintext
 
 
+def test_encode_rejects_empty_key() -> None:
+    with pytest.raises(ValueError, match="login key must be 20 bytes"):
+        encode(b"user=root\n", key=b"")
+
+
 def test_decode_rejects_truncated_data() -> None:
     encoded = encode(b"user=root\n", key=bytes(20))
 

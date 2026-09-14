@@ -42,7 +42,8 @@ def decode_line(ciphertext: bytes, real_key: bytes) -> bytes:
 
 
 def encode(data: bytes, key: bytes | None = None) -> bytes:
-    key = key or get_random_bytes(_LOGIN_KEY_LENGTH)
+    if key is None:
+        key = get_random_bytes(_LOGIN_KEY_LENGTH)
     if len(key) != _LOGIN_KEY_LENGTH:
         raise ValueError(f"login key must be {_LOGIN_KEY_LENGTH} bytes")
 
