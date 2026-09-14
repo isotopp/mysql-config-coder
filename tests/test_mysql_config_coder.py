@@ -1,3 +1,6 @@
+import os
+import stat
+
 import pytest
 
 from mysql_config_coder import decode, encode, main
@@ -29,3 +32,16 @@ def test_cli_uses_mysql_test_login_file(tmp_path, monkeypatch) -> None:
     assert main(["encode", str(plaintext)]) == 0
     assert main(["decode", str(decoded)]) == 0
     assert decoded.read_bytes() == plaintext.read_bytes()
+
+
+def test_encode_creates_private_output(tmp_path) -> None:
+    plaintext = tmp_path / "plain.cnf"
+    encoded = tmp_path / ".mylogin.cnf"
+    plaintext.write_bytes(b"[client]\npassword=secret\n")
+    old_umask = os.umask(0)
+    try:
+        assert main(["encode", str(plaintext), str(encoded)]) == 0
+    finally:
+        os.umask(old_umask)
+
+    assert stat.S_IMODE(encoded.stat().st_mode) == 0o600

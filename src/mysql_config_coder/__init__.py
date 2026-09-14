@@ -110,6 +110,8 @@ def main(argv: list[str] | None = None) -> int:
     transform = decode if args.command == "decode" else encode
     try:
         result = transform(infile.read_bytes())
+        args.outfile.touch(mode=0o600)
+        args.outfile.chmod(0o600)
         args.outfile.write_bytes(result)
     except (OSError, ValueError) as error:
         parser.error(str(error))
