@@ -14,7 +14,11 @@ _LENGTH = struct.Struct("<I")
 
 
 def realkey(key: bytes) -> bytes:
-    """Create an AES key from a MySQL login key."""
+    """Fold a MySQL login key into a 16-byte AES key.
+
+    Each input byte is XORed into the output position matching its offset
+    modulo the AES block size, reproducing MySQL's key derivation.
+    """
     result = bytearray(AES.block_size)
     for index, byte in enumerate(key):
         result[index % AES.block_size] ^= byte
@@ -22,12 +26,17 @@ def realkey(key: bytes) -> bytes:
 
 
 def encode_line(plaintext: bytes, real_key: bytes) -> bytes:
+    """Pad one plaintext line with PKCS#7 and encrypt it using AES-128-ECB."""
     pad_length = AES.block_size - len(plaintext) % AES.block_size
     padded = plaintext + bytes([pad_length]) * pad_length
     return AES.new(real_key, AES.MODE_ECB).encrypt(padded)
 
 
 def decode_line(ciphertext: bytes, real_key: bytes) -> bytes:
+    """Decrypt one AES-128-ECB record and remove its validated PKCS#7 padding.
+
+    Invalid block lengths and malformed padding raise ``ValueError``.
+    """
     if not ciphertext or len(ciphertext) % AES.block_size:
         raise ValueError("invalid encrypted line length")
 
@@ -42,6 +51,13 @@ def decode_line(ciphertext: bytes, real_key: bytes) -> bytes:
 
 
 def encode(data: bytes, key: bytes | None = None) -> bytes:
+    """Encode plaintext as a MySQL login-file byte stream.
+
+    The output contains four reserved zero bytes, a 20-byte login key, then
+    each plaintext line as a little-endian length followed by encrypted data.
+    A random login key is generated when ``key`` is ``None``; supplied keys
+    must be exactly 20 bytes. Oversized records raise ``ValueError``.
+    """
     if key is None:
         key = get_random_bytes(_LOGIN_KEY_LENGTH)
     if len(key) != _LOGIN_KEY_LENGTH:
@@ -59,6 +75,12 @@ def encode(data: bytes, key: bytes | None = None) -> bytes:
 
 
 def decode(data: bytes) -> bytes:
+    """Decode a MySQL login-file byte stream into its original plaintext.
+
+    The header supplies the format version and login key. Each following
+    length-prefixed record is decrypted and concatenated. Unsupported,
+    truncated, or malformed input raises ``ValueError``.
+    """
     if len(data) < _VERSION_LENGTH + _LOGIN_KEY_LENGTH:
         raise ValueError("file is too short")
 
