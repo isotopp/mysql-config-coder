@@ -29,7 +29,7 @@ mysql_config_coder encode mylogin.out mylogin.cnf
 chmod 600 mylogin.cnf
 
 # test with original
-MYSQL_TEST_LOGIN_FILE=$(pwd)/mylogin.cnf
+export MYSQL_TEST_LOGIN_FILE=$(pwd)/mylogin.cnf
 mysql_config_editor -v print --all
 my_print_defaults -s local
 
